@@ -42,10 +42,10 @@
   register: get_folder_info_result
 
 - name: Set the folder_path variable for all full path of folder
-  set_fact:
+  ansible.builtin.set_fact:
     folder_path: >-
       {{ folder_path | default([])
-        + [get_folder_info_result.folder_info.vmFolders.subfolders | json_query(item)]
+        + [get_folder_info_result.folder_info.vmFolders.subfolders | community.general.json_query(item)]
         | flatten
       }}
   loop:
@@ -53,7 +53,7 @@
     - '*.subfolders.*.path'
 
 - name: If the folder doesn't exist
-  fail:
+  ansible.builtin.fail:
     msg: "{{ folder_name }} not found."
   when:
     - folder_path | map('regex_search', vm_folder + '$') | select('string') | list | length == 0
