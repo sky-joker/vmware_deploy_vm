@@ -1,0 +1,6 @@
+---
+- name: Include pre-check tasks
+  include_tasks: pre-check.yml
+
+- name: Include deploy_vm tasks
+  include_tasks: deploy_vm.yml

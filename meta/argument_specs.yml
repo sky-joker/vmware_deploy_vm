@@ -1,0 +1,38 @@
+---
+argument_specs:
+  main:
+    short_description: "The variables are used in running the role"
+    options:
+      datacenter_name:
+        type: str
+        required: true
+        description: "The datacenter name to deploy vm"
+      cluster_name:
+        type: str
+        required: false
+        description: "The cluster name to deploy vm"
+      esxi_hostname:
+        type: str
+        required: false
+        description: "The ESXi name to deploy vm"
+      vm_folder:
+        type: str
+        required: true
+        description: "The folder name to deploy vm"
+      template_name:
+        type: str
+        required: true
+        description: "The template name"
+      vm_name:
+        type: str
+        required: true
+        description: "The name for deploying vm"
+      dns_ip_addrs:
+        type: list
+        elements: str
+        required: true
+        description: "The dns servers to set into vm"
+      gateway_ip_addr:
+        type: str
+        required: true
+        description: "The gateway address to set into vm"

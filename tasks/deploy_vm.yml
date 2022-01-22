@@ -1,0 +1,49 @@
+---
+- name: Set defualt module parameters
+  module_defaults:
+    community.vmware.vmware_guest:
+      hostname: "{{ vcenter_hostname | default(lookup('env', 'VMWARE_HOST')) }}"
+      username: "{{ vcenter_username | default(lookup('env', 'VMWARE_USER')) }}"
+      password: "{{ vcenter_password | default(lookup('env', 'VMWARE_PASSWORD')) }}"
+      validate_certs: "{{ validate_certs | default(false) }}"
+      datacenter: "{{ datacenter_name }}"
+      folder: "{{ vm_folder | default('vm') }}"
+      template: "{{ template_name | default('') }}"
+      name: "{{ vm_name }}.{{ domain }}"
+      hardware: "{{ flavor[vm_size] }}"
+      networks:
+        - name: "{{ portgroup_name | default('VM Network') }}"
+          ip: "{{ vm_ip_addr }}"
+          netmask: "{{ vm_ip_netmask }}"
+          gateway: "{{ gateway_ip_addr }}"
+      customization:
+        dns_servers: "{{ dns_ip_addrs }}"
+      wait_for_customization: true
+      state: poweredon
+  block:
+    - name: Deploy new vm to the specified ESXi host
+      community.vmware.vmware_guest:
+        esxi_hostname: "{{ esxi_hostname }}"
+      when:
+        - cluster_name is not defined
+        - esxi_hostname is defined
+
+    - name: Deploy new vm to the specified cluster
+      community.vmware.vmware_guest:
+        cluster: "{{ cluster_name }}"
+      when:
+        - esxi_hostname is not defined
+        - cluster_name is defined
+
+    - name: Wait until starting vmware tools
+      community.vmware.vmware_guest_tools_info:
+        hostname: "{{ vcenter_hostname | default(lookup('env', 'VMWARE_HOST')) }}"
+        username: "{{ vcenter_username | default(lookup('env', 'VMWARE_USER')) }}"
+        password: "{{ vcenter_password | default(lookup('env', 'VMWARE_PASSWORD')) }}"
+        validate_certs: "{{ validate_certs | default(false) }}"
+        datacenter: "{{ datacenter_name }}"
+        name: "{{ vm_name }}.{{ domain }}"
+      register: get_vm_tools_info_result
+      until: get_vm_tools_info_result.vmtools_info.vm_tools_running_status == "guestToolsRunning"
+      retries: 300
+      delay: 10
