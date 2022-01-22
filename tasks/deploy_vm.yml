@@ -15,7 +15,7 @@
         - name: "{{ portgroup_name | default('VM Network') }}"
           ip: "{{ vm_ip_addr }}"
           netmask: "{{ vm_ip_netmask }}"
-          gateway: "{{ gateway_ip_addr | ansible.builtin.regex_replace('\\s+', '') }}"
+          gateway: "{{ gateway_ip_addr }}"
       customization:
         dns_servers: "{{ dns_ip_addrs }}"
       wait_for_customization: true
