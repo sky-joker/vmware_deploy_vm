@@ -45,6 +45,7 @@
     - name: Make sure the tasks are until completion
       ansible.builtin.async_status:
         jid: "{{ item.ansible_job_id }}"
+      delegate_to: localhost
       register: job_result
       until: job_result.finished
       retries: 600
