@@ -1,6 +1,6 @@
 ---
-- name: Include pre-check tasks
-  ansible.builtin.include_tasks: pre-check.yml
+- name: Include pre_check tasks
+  include_tasks: pre_check.yml
 
 - name: Include deploy_vm tasks
-  ansible.builtin.include_tasks: deploy_vm.yml
+  include_tasks: deploy_vm.yml
