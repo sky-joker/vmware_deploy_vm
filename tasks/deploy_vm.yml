@@ -4,7 +4,7 @@
     community.vmware.vmware_guest:
       hostname: "{{ vcenter_hostname | default(lookup('env', 'VMWARE_HOST')) }}"
       username: "{{ vcenter_username | default(lookup('env', 'VMWARE_USER')) }}"
-      password: "{{ vcenter_password | default(lookup('env', 'VMWARE_PASSWORD')) }}"
+      password: "{{ vcenter_password | default(lookup('env', 'VMWARE_PASSWORD')) }}"  # noqa no-log-password
       validate_certs: "{{ validate_certs | default(false) }}"
       datacenter: "{{ datacenter_name }}"
       folder: "{{ vm_folder | default('vm') }}"
@@ -16,9 +16,22 @@
       wait_for_customization: true
       state: poweredon
   block:
-    - name: Deploy new vm to the specified ESXi host
+#    - name: Deploy new vm to the specified ESXi host
+#      community.vmware.vmware_guest:
+#        esxi_hostname: "{{ esxi_hostname }}"
+#        name: "{{ item.vm_name + '.' + domain }}"
+#        networks: "{{ item.networks }}"
+#      async: 6000
+#      poll: 0
+#      loop: "{{ target_vm_info }}"
+#      register: deploy_vm_jobs
+#      when:
+#        - cluster_name is not defined
+#        - esxi_hostname is defined
+
+    - name: Deploy new vm to the specified cluster
       community.vmware.vmware_guest:
-        esxi_hostname: "{{ esxi_hostname }}"
+        cluster: "{{ cluster_name }}"
         name: "{{ item.vm_name + '.' + domain }}"
         networks: "{{ item.networks }}"
       async: 6000
@@ -26,30 +39,17 @@
       loop: "{{ target_vm_info }}"
       register: deploy_vm_jobs
       when:
-        - cluster_name is not defined
-        - esxi_hostname is defined
-
-    - name: Deploy new vm to the specified cluster
-      community.vmware.vmware_guest:
-        cluster: "{{ cluster_name }}"
-        name: "{{ item.vm_name + '.' + domain }}"
-        networks: "{{ item.networks }}"
-#      async: 6000
-#      poll: 0
-      loop: "{{ target_vm_info }}"
-      register: deploy_vm_jobs
-      when:
         - esxi_hostname is not defined
         - cluster_name is defined
 
-#    - name: Make sure the tasks are until completion
-#      ansible.builtin.async_status:
-#        jid: "{{ item.ansible_job_id }}"
-#      register: job_result
-#      until: job_result.finished
-#      retries: 600
-#      delay: 10
-#      loop: "{{ deploy_vm_jobs.results }}"
+    - name: Make sure the tasks are until completion
+      ansible.builtin.async_status:
+        jid: "{{ item.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 600
+      delay: 10
+      loop: "{{ deploy_vm_jobs.results }}"
 
     - name: Wait until starting vmware tools
       community.vmware.vmware_guest_tools_info:
