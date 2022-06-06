@@ -34,23 +34,22 @@
         cluster: "{{ cluster_name }}"
         name: "{{ item.vm_name + '.' + domain }}"
         networks: "{{ item.networks }}"
-      async: 6000
-      poll: 0
-      loop: "{{ target_vm_info }}"
+#      async: 6000
+#      poll: 0
+#      loop: "{{ target_vm_info }}"
       register: deploy_vm_jobs
       when:
         - esxi_hostname is not defined
         - cluster_name is defined
 
-    - name: Make sure the tasks are until completion
-      ansible.builtin.async_status:
-        jid: "{{ item.ansible_job_id }}"
-      delegate_to: localhost
-      register: job_result
-      until: job_result.finished
-      retries: 600
-      delay: 10
-      loop: "{{ deploy_vm_jobs.results }}"
+#    - name: Make sure the tasks are until completion
+#      ansible.builtin.async_status:
+#        jid: "{{ item.ansible_job_id }}"
+#      register: job_result
+#      until: job_result.finished
+#      retries: 600
+#      delay: 10
+#      loop: "{{ deploy_vm_jobs.results }}"
 
     - name: Wait until starting vmware tools
       community.vmware.vmware_guest_tools_info:
